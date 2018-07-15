@@ -2,6 +2,8 @@
 
 require_once "vendor/autoload.php";
 
+require_once 'generated-conf/config.php';
+
 // Путь до директории с файлами.
 $pathData = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "data" . DIRECTORY_SEPARATOR;
 
@@ -69,7 +71,19 @@ $categoryList = new \SimaLand\API\Entities\CategoryList(
         // По-умолчанию сохраняются все поля сущности.
         'fields' => [
             'id',
-            'name'
+            'sid',
+            'name',
+            'priority',
+            'priority_home',
+            'priority_menu',
+            'is_hidden_in_menu',
+            'path',
+            'level',
+            'type',
+            'is_adult',
+            'has_loco_slider',
+            'has_design',
+            'is_item_description_hidden'
         ]
     ]
 );
@@ -110,8 +124,8 @@ foreach ($categoryList as $record) {
 // Вы можете реализовать свой класс хранения данных, который будет сохранять в MySQL, PostgresQL и т. п..
 // Этот класс должен реализовать интерфейс \SimaLand\API\Parser\StorageInterface.
 // Сейчас мы данные этой сущности сохраним в Json файл.
-$categoryStorage = new \SimaLand\API\Parser\Json([
-    'filename' => $pathData . 'category.txt'
+$categoryStorage = new \SimaLand\API\Parser\DataBase([
+    'tableName' => 'category'
 ]);
 
 // Атрибуты товаров.
@@ -122,9 +136,18 @@ $attrList = new \SimaLand\API\Entities\AttrList(
         // Ключ, который отвечает за номер потока. По дефолту "page".
         // За исключением сущности "Категории" и "Товар", там ключ будет "id-mf".
         'keyThreads' => 'page',
+        'fields' => [
+            'id',
+            'name',
+            'description',
+            'datatype_id',
+            'unit_id'
+        ]
     ]
 );
-$attrStorage = new \SimaLand\API\Parser\Json(['filename' => $pathData . 'attr.txt']);
+$attrStorage = new \SimaLand\API\Parser\DataBase([
+    'tableName' => 'attr'
+]);
 
 // Опция атрибута товара.
 $optionList = new \SimaLand\API\Entities\OptionList($client, ['logger' => $logger]);

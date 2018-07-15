@@ -4,3 +4,5 @@ phpunit.xml
 report
 vendor
 tests/output
+generated-*
+src/Parser/Models
