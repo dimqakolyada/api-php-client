@@ -4,29 +4,19 @@
     <column name="id" type="INTEGER" primaryKey="true" autoIncrement="false" required="true"/>
     <column name="sid" type="INTEGER"/>
     <column name="name" type="VARCHAR" size="255" required="true"/>
-    <column name="priority" type="INTEGER"/>
-    <column name="priority_home" type="INTEGER"/>
-    <column name="priority_menu" type="INTEGER"/>
-    <column name="is_hidden_in_menu" type="BOOLEAN"/>
-    <column name="path" type="VARCHAR"/>
-    <column name="level" type="VARCHAR" size="255"/>
-    <column name="type" type="INTEGER"/>
-    <column name="is_adult" type="BOOLEAN"/>
-    <column name="has_loco_slider" type="BOOLEAN"/>
-    <column name="has_design" type="BOOLEAN"/>
-    <column name="is_item_description_hidden" type="BOOLEAN"/>
     <vendor type="mysql">
       <parameter name="Engine" value="InnoDB"/>
         <parameter name="Charset" value="utf8"/>
         <parameter name="Collate" value="utf8_general_ci"/>
     </vendor>
   </table>
-  <table name="attr" idMethod="native">
-    <column name="id" type="INTEGER" primaryKey="true" autoIncrement="false" required="true"/>
-    <column name="name" type="VARCHAR" size="255" required="true"/>
-    <column name="description" type="VARCHAR" size="255"/>
-    <column name="datatype_id" type="INTEGER"/>
-    <column name="unit_id" type="INTEGER"/>
+  <table name="category_priority" idMethod="native">
+    <column name="category_id" type="INTEGER" primaryKey="true" autoIncrement="false" required="true"/>
+    <column name="value" type="INTEGER"/>
+    <column name="priority_home" type="INTEGER"/>
+    <foreign-key foreignTable="category" onDelete="CASCADE" skipSql="true">
+      <reference local="category_id" foreign="id"/>
+    </foreign-key>
     <vendor type="mysql">
       <parameter name="Engine" value="InnoDB"/>
         <parameter name="Charset" value="utf8"/>

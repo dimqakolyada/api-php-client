@@ -69,21 +69,15 @@ $categoryList = new \SimaLand\API\Entities\CategoryList(
         'repeatCount' => 20,
         // Массив полей, которые нужно сохранять из данной сущности.
         // По-умолчанию сохраняются все поля сущности.
+        // В случае, если данные записываются в БД,
+        // то поле нужно задать массивом,
+        // первый элемент которого - таблица, второй - поле.
         'fields' => [
             'id',
             'sid',
             'name',
             'priority',
             'priority_home',
-            'priority_menu',
-            'is_hidden_in_menu',
-            'path',
-            'level',
-            'type',
-            'is_adult',
-            'has_loco_slider',
-            'has_design',
-            'is_item_description_hidden'
         ]
     ]
 );
@@ -125,7 +119,25 @@ foreach ($categoryList as $record) {
 // Этот класс должен реализовать интерфейс \SimaLand\API\Parser\StorageInterface.
 // Сейчас мы данные этой сущности сохраним в Json файл.
 $categoryStorage = new \SimaLand\API\Parser\DataBase([
-    'tableName' => 'category'
+    'tableName' => 'category',
+    'matches' => [
+        'category' => [
+            'id' => [
+                'id',
+                'pk'
+            ],
+            'name' => 'name',
+            'sid' => 'sid'
+        ],
+        'category_priority' => [
+            'id' => [
+                'category_id',
+                'pk'
+            ],
+            'priority' => 'value',
+            'priority_home' => 'priority_home'
+        ]
+    ]
 ]);
 
 // Атрибуты товаров.
@@ -146,7 +158,8 @@ $attrList = new \SimaLand\API\Entities\AttrList(
     ]
 );
 $attrStorage = new \SimaLand\API\Parser\DataBase([
-    'tableName' => 'attr'
+    'tableName' => 'attr',
+    'list' => 'CategoryList'
 ]);
 
 // Опция атрибута товара.

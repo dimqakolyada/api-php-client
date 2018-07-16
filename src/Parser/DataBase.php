@@ -9,15 +9,18 @@
 namespace SimaLand\API\Parser;
 
 use Models\Category;
+use Models\CategoryPriority;
 use Models\CategoryQuery;
-use Models\AttrQuery;
-use Models\Attr;
+use Models\CategoryPriorityQuery;
 use SimaLand\API\BaseObject;
+use SimaLand\API\Entities\CategoryList;
 use SimaLand\API\Record;
 
 class DataBase extends BaseObject implements StorageInterface
 {
     public $tableName;
+    public $list;
+    public $matches;
 
 
     /**
@@ -27,22 +30,44 @@ class DataBase extends BaseObject implements StorageInterface
      */
     public function save(Record $item)
     {
-        $classQueryName = 'Models\\' . ucfirst($this->tableName) . 'Query';
-        $className = 'Models\\' . ucfirst($this->tableName);
-
-        $row = $classQueryName::create()->findOneById($item->data['id']);
-
-        if($row === null){
-            $row = new $className();
-        }
-        foreach ($item->data as $key => $value){
-            $key = 'set'.$this->undescoresToCamelCase($key);
-            $row->$key($value);
-        }
-        $row->save();
-
-
+        $rows = $this->ormObjectsGeneration($item);
+        $this->ormObjectsSet($rows, $item);
+        var_dump($rows);
         // TODO: Implement save() method.
+    }
+
+    public function ormObjectsSet($rows, Record $item){
+        foreach ($rows as $objectName => $row){
+            foreach ($this->matches[$objectName] as $response_field => $db_field){
+                if (is_array($db_field)){
+                    $columnName = $db_field[0];
+                } else {
+                    $columnName = $db_field;
+                }
+                $method_name = 'set' . ucfirst($this->undescoresToCamelCase($columnName));
+                $row['object']->$method_name($item->data[$response_field]);
+            }
+            $row['object']->save();
+        }
+    }
+
+    public function ormObjectsGeneration(Record $item){
+        $rows = [];
+        foreach ($this->matches as $key => $value){
+            $rows[$key]['className'] = 'Models\\' . ucfirst($this->undescoresToCamelCase($key));
+            $rows[$key]['classQueryName'] = 'Models\\' . ucfirst($this->undescoresToCamelCase($key)) . 'Query';
+            foreach ($value as $response_field => $db_field){
+                if ($db_field[1] === 'pk'){
+                    $method_name = 'findOneBy'.ucfirst($this->undescoresToCamelCase($db_field[0]));
+                    $rows[$key]['object'] = $rows[$key]['classQueryName']::create()->$method_name($item->data[$response_field]);
+                    if(!isset($rows[$key]['object'])){
+                        $rows[$key]['object'] = new $rows[$key]['className']();
+                    }
+                }
+            }
+        }
+
+        return $rows;
     }
 
     public function undescoresToCamelCase($string, $capitalizeFirstCharacter = true)
